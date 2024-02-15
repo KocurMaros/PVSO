@@ -1,7 +1,7 @@
+import copy
 from ximea import xiapi
 import cv2
 import numpy as np 
-from time import sleep
 ### runn this command first echo 0|sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb  ###
 
 # create instance for first connected camera
@@ -28,50 +28,60 @@ img = xiapi.Image()
 print('Starting data acquisition...')
 cam.start_acquisition()
 
-
 inc = 0
-while cv2.waitKey() != ord('q'):
+k = cv2.waitKey(20)
 
-    ke = cv2.waitKey()   
-    # if ke == ord(' '):
+while k != ord('q'):
     cam.get_image(img)
     image = img.get_image_data_numpy()
     image = cv2.resize(image,(240,240))
     cv2.imshow("test", image)
-    cv2.imwrite("test"+str(inc)+".jpg", image)
-    inc = inc + 1
-    if inc == 4 :
+
+    if k == ord(' '):
+        cv2.imwrite("pictures/test"+str(inc)+".jpg",image)
+        inc = inc + 1
+
+    k =cv2.waitKey(20)
+    if inc>=4:
         break
 
-grid_image = images
-fig, axis = plt.subplots(2,2)
-axis[0,0].imshow(images[0])
-axis[0,1].imshow(images[1])
-axis[1,0].imshow(images[2])
-axis[1,1].imshow(images[3])
+picture_list = []
+for i in range (4):
+    picture_list.append(cv2.imread("pictures/test"+str(i)+".jpg"))
+
+mozaic = cv2.vconcat([cv2.hconcat(picture_list[:2]),cv2.hconcat(picture_list[2:])])
+
+cv2.imshow("mozaic",mozaic)
+cv2.waitKey()
+
+height, width, _ = mozaic.shape
+
+roi_height = height // 2 - 1
+roi_width = width // 2 - 1
+
+for i in range(roi_height // 2):
+    for j in range(i,roi_width-i):
+        index_1_i=j
+        index_1_j=roi_width-i
+
+        index_2_i=roi_height-i
+        index_2_j=roi_width-j
+
+        index_3_i=roi_height-j
+        index_3_j=i
+
+        temp = copy.deepcopy(mozaic[i, j])
+
+        mozaic[i,j] = mozaic[index_3_i, index_3_j]
+        mozaic[index_3_i, index_3_j] = mozaic[index_2_i, index_2_j]
+        mozaic[index_2_i, index_2_j] = mozaic[index_1_i, index_1_j]
+        mozaic[index_1_i, index_1_j] = temp
 
 
 
-img1 = cv2.imread('test0.jpg') 
-img2 = cv2.imread('test1.jpg') 
-img3 = cv2.imread('test2.jpg') 
-img4 = cv2.imread('test3.jpg') 
-  
-# concatenate image Horizontally 
-Hori1 = np.concatenate((img1, img2), axis=1)    
-Hori2 = np.concatenate((img3, img4), axis=1) 
-Verti = np.concatenate((Hori1, Hori2), axis=0) 
-# cv2.imshow('HORIZONTAL', Hori) 
-cv2.imwrite("mozaic.jpg", Verti)
-# sleep(10)
-cv2.waitKey(0)   
-    # for i in range(4):
-        # cam.get_image(img)
-        # image = img.get_image_data_numpy()
-        # image = cv2.resize(image,(240,240))
-
-        # cv2.imshow("test", image)
-    # if keyboard.is_pressed('space'):          
+cv2.imshow("mozaic",mozaic)
+cv2.waitKey()
+       
 # for i in range(10):
 #     #get data and pass them from camera to img
 #     cam.get_image(img)
