@@ -45,6 +45,7 @@ while k != ord('q'):
     if inc>=4:
         break
 
+#load pictures to mozaic
 picture_list = []
 for i in range (4):
     picture_list.append(cv2.imread("pictures/test"+str(i)+".jpg"))
@@ -54,20 +55,29 @@ mozaic = cv2.vconcat([cv2.hconcat(picture_list[:2]),cv2.hconcat(picture_list[2:]
 cv2.imshow("mozaic",mozaic)
 cv2.waitKey()
 
-height, width, _ = mozaic.shape
+#kernel mask
+height, width = mozaic.shape[:2]
+quarter_height, quarter_width = height // 2, width // 2
 
-roi_height = height // 2 - 1
-roi_width = width // 2 - 1
+kernel = np.ones((5,5),np.float32)/25
 
-for i in range(roi_height // 2):
-    for j in range(i,roi_width-i):
+quarter = mozaic[:quarter_height, :quarter_width]
+
+filtered_quarter = cv2.filter2D(quarter, -1, kernel)
+
+mozaic[:quarter_height, :quarter_width] = filtered_quarter
+
+
+#rotate picture 
+for i in range(quarter_height // 2):
+    for j in range(i,quarter_width-i):
         index_1_i=j
-        index_1_j=roi_width-i
+        index_1_j=quarter_width-i
 
-        index_2_i=roi_height-i
-        index_2_j=roi_width-j
+        index_2_i=quarter_height-i
+        index_2_j=quarter_width-j
 
-        index_3_i=roi_height-j
+        index_3_i=quarter_height-j
         index_3_j=i
 
         temp = copy.deepcopy(mozaic[i, j])
@@ -81,27 +91,19 @@ for i in range(roi_height // 2):
 
 cv2.imshow("mozaic",mozaic)
 cv2.waitKey()
-       
-# for i in range(10):
-#     #get data and pass them from camera to img
-#     cam.get_image(img)
-#     image = img.get_image_data_numpy()
-#     cv2.imshow("test", image)
-#     cv2.waitKey()
-#     #get raw data from camera
-#     #for Python2.x function returns string
-#     #for Python3.x function returns bytes
-#     data_raw = img.get_image_data_raw()
-#
-#     #transform data to list
-#     data = list(data_raw)
-#
-#     #print image data and metadata
-#     print('Image number: ' + str(i))
-#     print('Image width (pixels):  ' + str(img.width))
-#     print('Image height (pixels): ' + str(img.height))
-#     print('First 10 pixels: ' + str(data[:10]))
-#     print('\n')
+
+# showing only red channel
+b,g,r = cv2.split(mozaic)
+
+zeros = np.zeros(mozaic.shape[:2], dtype="uint8")
+
+for i in range(quarter_height,height):
+    for j in range(quarter_width+1):
+        mozaic[i, j] = [zeros[i, j], zeros[i, j], r[i, j]]
+
+# Display the image
+cv2.imshow("mozaic",mozaic)
+cv2.waitKey()
 
 # stop data acquisition
 print('Stopping acquisition...')
@@ -110,4 +112,7 @@ cam.stop_acquisition()
 # stop communication
 cam.close_device()
 
+print("Data type of the image: ", mozaic.dtype)
+print("Dimensions of the image: ", mozaic.shape)
+print("Size of the image: ", mozaic.size)
 print('Done.')
