@@ -52,12 +52,13 @@ for i in range (4):
 
 mozaic = cv2.vconcat([cv2.hconcat(picture_list[:2]),cv2.hconcat(picture_list[2:])])
 
+cv2.imwrite("pictures/mozaic.jpg",mozaic)
 cv2.imshow("mozaic",mozaic)
 cv2.waitKey()
 
 #kernel mask
 height, width = mozaic.shape[:2]
-quarter_height, quarter_width = height // 2 - 1, width // 2 - 1
+quarter_height, quarter_width = height // 2, width // 2 
 
 kernel = np.ones((5,5),np.float32)/25
 
@@ -72,14 +73,14 @@ cv2.waitKey()
 
 #rotate picture 
 for i in range(quarter_height // 2):
-    for j in range(quarter_width + i, 2*quarter_width-i):
+    for j in range(i+quarter_width,width-i-1):
         index_1_i=j-quarter_width
-        index_1_j=2*quarter_width-i
+        index_1_j=width-1-i
 
-        index_2_i=quarter_height-i
-        index_2_j=2*quarter_width-j+quarter_width
+        index_2_i=quarter_height-1-i
+        index_2_j=width-1-j+quarter_width
 
-        index_3_i=quarter_height-j+quarter_width
+        index_3_i=quarter_height-1-j+quarter_width
         index_3_j=i+quarter_width
 
         temp = copy.deepcopy(mozaic[i, j])
@@ -107,14 +108,15 @@ for i in range(quarter_height,height):
 cv2.imshow("mozaic",mozaic)
 cv2.waitKey()
 
+
 # stop data acquisition
-print('Stopping acquisition...')
-cam.stop_acquisition()
+# print('Stopping acquisition...')
+# cam.stop_acquisition()
 
-# stop communication
-cam.close_device()
+# # stop communication
+# cam.close_device()
 
-print("Data type of the image: ", mozaic.dtype)
-print("Dimensions of the image: ", mozaic.shape)
-print("Size of the image: ", mozaic.size)
-print('Done.')
+# print("Data type of the image: ", mozaic.dtype)
+# print("Dimensions of the image: ", mozaic.shape)
+# print("Size of the image: ", mozaic.size)
+# print('Done.')
