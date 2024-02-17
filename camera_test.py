@@ -5,45 +5,45 @@ import numpy as np
 ### runn this command first echo 0|sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb  ###
 
 # create instance for first connected camera
-cam = xiapi.Camera()
+# cam = xiapi.Camera()
 
-# start communication
-# to open specific device, use:
-# cam.open_device_by_SN('41305651')
-# (open by serial number)
-print('Opening first camera...')
-cam.open_device()
+# # start communication
+# # to open specific device, use:
+# # cam.open_device_by_SN('41305651')
+# # (open by serial number)
+# print('Opening first camera...')
+# cam.open_device()
 
-# settings
-cam.set_exposure(50000)
-cam.set_param("imgdataformat","XI_RGB32")
-cam.set_param("auto_wb",1)
+# # settings
+# cam.set_exposure(50000)
+# cam.set_param("imgdataformat","XI_RGB32")
+# cam.set_param("auto_wb",1)
 
-print('Exposure was set to %i us' %cam.get_exposure())
+# print('Exposure was set to %i us' %cam.get_exposure())
 
-# create instance of Image to store image data and metadata
-img = xiapi.Image()
+# # create instance of Image to store image data and metadata
+# img = xiapi.Image()
 
-# start data acquisitionq
-print('Starting data acquisition...')
-cam.start_acquisition()
+# # start data acquisitionq
+# print('Starting data acquisition...')
+# cam.start_acquisition()
 
-inc = 0
-k = cv2.waitKey(20)
+# inc = 0
+# k = cv2.waitKey(20)
 
-while k != ord('q'):
-    cam.get_image(img)
-    image = img.get_image_data_numpy()
-    image = cv2.resize(image,(240,240))
-    cv2.imshow("test", image)
+# while k != ord('q'):
+#     cam.get_image(img)
+#     image = img.get_image_data_numpy()
+#     image = cv2.resize(image,(240,240))
+#     cv2.imshow("test", image)
 
-    if k == ord(' '):
-        cv2.imwrite("pictures/test"+str(inc)+".jpg",image)
-        inc = inc + 1
+#     if k == ord(' '):
+#         cv2.imwrite("pictures/test"+str(inc)+".jpg",image)
+#         inc = inc + 1
 
-    k =cv2.waitKey(20)
-    if inc>=4:
-        break
+#     k =cv2.waitKey(20)
+#     if inc>=4:
+#         break
 
 #load pictures to mozaic
 picture_list = []
@@ -57,7 +57,7 @@ cv2.waitKey()
 
 #kernel mask
 height, width = mozaic.shape[:2]
-quarter_height, quarter_width = height // 2, width // 2
+quarter_height, quarter_width = height // 2 - 1, width // 2 - 1
 
 kernel = np.ones((5,5),np.float32)/25
 
@@ -67,18 +67,20 @@ filtered_quarter = cv2.filter2D(quarter, -1, kernel)
 
 mozaic[:quarter_height, :quarter_width] = filtered_quarter
 
+cv2.imshow("mozaic",mozaic)
+cv2.waitKey()
 
 #rotate picture 
 for i in range(quarter_height // 2):
-    for j in range(i,quarter_width-i):
-        index_1_i=j
-        index_1_j=quarter_width-i
+    for j in range(quarter_width + i, 2*quarter_width-i):
+        index_1_i=j-quarter_width
+        index_1_j=2*quarter_width-i
 
         index_2_i=quarter_height-i
-        index_2_j=quarter_width-j
+        index_2_j=2*quarter_width-j+quarter_width
 
-        index_3_i=quarter_height-j
-        index_3_j=i
+        index_3_i=quarter_height-j+quarter_width
+        index_3_j=i+quarter_width
 
         temp = copy.deepcopy(mozaic[i, j])
 
