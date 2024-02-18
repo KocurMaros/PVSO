@@ -60,13 +60,9 @@ cv2.waitKey()
 height, width = mozaic.shape[:2]
 quarter_height, quarter_width = height // 2, width // 2 
 
-kernel = np.ones((5,5),np.float32)/25
+kernel = np.ones((3,3),np.float32)/9
 
-quarter = mozaic[:quarter_height, :quarter_width]
-
-filtered_quarter = cv2.filter2D(quarter, -1, kernel)
-
-mozaic[:quarter_height, :quarter_width] = filtered_quarter
+mozaic[:quarter_height, :quarter_width] = cv2.filter2D(mozaic[:quarter_height, :quarter_width], -1, kernel)
 
 cv2.imshow("mozaic",mozaic)
 cv2.waitKey()
@@ -96,7 +92,7 @@ cv2.imshow("mozaic",mozaic)
 cv2.waitKey()
 
 # showing only red channel
-b,g,r = cv2.split(mozaic)
+_,_,r = cv2.split(mozaic)
 
 zeros = np.zeros(mozaic.shape[:2], dtype="uint8")
 
@@ -111,7 +107,7 @@ cv2.waitKey()
 
 print("Data type of the mozaic: ", mozaic.dtype)
 print("Dimensions of the mozaic: ", mozaic.shape[0], "x", mozaic.shape[1], "x", mozaic.shape[2])
-print("Size of the mozaic: ", mozaic.size/1024, "KB") 
+print("Size of the mozaic: ", mozaic.size/1024, "kB") 
 
 
 # stop data acquisition
