@@ -109,6 +109,11 @@ cv2.imshow("mozaic",mozaic)
 cv2.waitKey()
 
 
+print("Data type of the mozaic: ", mozaic.dtype)
+print("Dimensions of the mozaic: ", mozaic.shape[0], "x", mozaic.shape[1], "x", mozaic.shape[2])
+print("Size of the mozaic: ", mozaic.size/1024, "KB") 
+
+
 # stop data acquisition
 # print('Stopping acquisition...')
 # cam.stop_acquisition()
