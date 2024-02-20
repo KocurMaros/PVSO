@@ -5,45 +5,45 @@ import numpy as np
 ### runn this command first echo 0|sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb  ###
 
 # create instance for first connected camera
-# cam = xiapi.Camera()
+cam = xiapi.Camera()
 
 # # start communication
 # # to open specific device, use:
 # # cam.open_device_by_SN('41305651')
 # # (open by serial number)
-# print('Opening first camera...')
-# cam.open_device()
+print('Opening first camera...')
+cam.open_device()
 
-# # settings
-# cam.set_exposure(50000)
-# cam.set_param("imgdataformat","XI_RGB32")
-# cam.set_param("auto_wb",1)
+# settings
+cam.set_exposure(50000)
+cam.set_param("imgdataformat","XI_RGB32")
+cam.set_param("auto_wb",1)
 
-# print('Exposure was set to %i us' %cam.get_exposure())
+print('Exposure was set to %i us' %cam.get_exposure())
 
-# # create instance of Image to store image data and metadata
-# img = xiapi.Image()
+# create instance of Image to store image data and metadata
+img = xiapi.Image()
 
-# # start data acquisitionq
-# print('Starting data acquisition...')
-# cam.start_acquisition()
+# start data acquisitionq
+print('Starting data acquisition...')
+cam.start_acquisition()
 
-# inc = 0
-# k = cv2.waitKey(20)
+inc = 0
+k = cv2.waitKey(20)
 
-# while k != ord('q'):
-#     cam.get_image(img)
-#     image = img.get_image_data_numpy()
-#     image = cv2.resize(image,(240,240))
-#     cv2.imshow("test", image)
+while k != ord('q'):
+    cam.get_image(img)
+    image = img.get_image_data_numpy()
+    image = cv2.resize(image,(240,240))
+    cv2.imshow("test", image)
 
-#     if k == ord(' '):
-#         cv2.imwrite("pictures/test"+str(inc)+".jpg",image)
-#         inc = inc + 1
+    if k == ord(' '):
+        cv2.imwrite("pictures/test"+str(inc)+".jpg",image)
+        inc = inc + 1
 
-#     k =cv2.waitKey(20)
-#     if inc>=4:
-#         break
+    k =cv2.waitKey(20)
+    if inc>=4:
+        break
 
 #load pictures to mozaic
 picture_list = []
@@ -111,13 +111,13 @@ print("Size of the mozaic: ", mozaic.size/1024, "kB")
 
 
 # stop data acquisition
-# print('Stopping acquisition...')
-# cam.stop_acquisition()
+print('Stopping acquisition...')
+cam.stop_acquisition()
 
-# # stop communication
-# cam.close_device()
+# stop communication
+cam.close_device()
 
 # print("Data type of the image: ", mozaic.dtype)
 # print("Dimensions of the image: ", mozaic.shape)
 # print("Size of the image: ", mozaic.size)
-# print('Done.')
+print('Done.')
