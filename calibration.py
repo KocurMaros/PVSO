@@ -50,7 +50,7 @@ objp[:,:2] = np.mgrid[0:6,0:5].T.reshape(-1,2)
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 
-images = glob.glob('pictures/*.jpg')
+images = glob.glob('pictures/calibration0.jpg')
 inc = 0 
 for fname in images:
     print(fname)
@@ -78,9 +78,20 @@ for fname in images:
         x, y, w, h = roi
         dst = dst[y:y+h, x:x+w]
         cv.imwrite('pictures/out/cal'+str(inc)+'.png', dst)
-        # print("Camera Matrix : \n", mtx)
-        # print("Dist : \n", dist)
-        # print("------------------------")
+        print("Camera Matrix : \n", mtx)
+        print("Dist : \n", dist)
+        print("------------------------")
         cv.waitKey(500)
     inc = inc + 1 
 cv.destroyAllWindows()
+
+img = cv.imread('pictures/calibration0.jpg')
+h,  w = img.shape[:2]
+newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
+
+# undistort
+dst = cv.undistort(img, mtx, dist, None, newcameramtx)
+# crop the image
+x, y, w, h = roi
+dst = dst[y:y+h, x:x+w]
+cv.imwrite('pictures/undistort/calibresult.png', dst)
