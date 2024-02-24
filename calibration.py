@@ -3,7 +3,10 @@ import cv2 as cv
 import glob
 from ximea import xiapi
 
-if 1 == 0:
+use_ximea = False
+
+# termination criteria
+if use_ximea == True:
     cam = xiapi.Camera()
 
     print('Opening first camera...')
@@ -50,17 +53,17 @@ objp[:,:2] = np.mgrid[0:6,0:5].T.reshape(-1,2)
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 
-images = glob.glob('pictures/calibration0.jpg')
+images = glob.glob('pictures/*.jpg')
 inc = 0 
+
 for fname in images:
     print(fname)
     img = cv.imread(fname)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     # Find the chess board corners
-    # cv.imshow('img', gray)
-    # cv.waitKey()
+    cv.imshow('img', gray)
+    cv.waitKey()
     ret, corners = cv.findChessboardCorners(gray, (6,5), None)
-    # print(ret)
     # If found, add object points, image points (after refining them)
     if ret == True:
         objpoints.append(objp)
@@ -69,11 +72,11 @@ for fname in images:
         # Draw and display the corners
         cv.drawChessboardCorners(img, (6,5), corners2, ret)
         cv.imshow('img', img)
-        # cv.imwrite("pictures/out/out"+str(inc)+".jpg",img)
         _, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
         h,  w = img.shape[:2]
         newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
         dst = cv.undistort(img, mtx, dist, None, newcameramtx)
+
         # crop the image
         x, y, w, h = roi
         dst = dst[y:y+h, x:x+w]
@@ -81,17 +84,6 @@ for fname in images:
         print("Camera Matrix : \n", mtx)
         print("Dist : \n", dist)
         print("------------------------")
-        cv.waitKey(500)
+        cv.waitKey()
     inc = inc + 1 
 cv.destroyAllWindows()
-
-img = cv.imread('pictures/calibration0.jpg')
-h,  w = img.shape[:2]
-newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
-
-# undistort
-dst = cv.undistort(img, mtx, dist, None, newcameramtx)
-# crop the image
-x, y, w, h = roi
-dst = dst[y:y+h, x:x+w]
-cv.imwrite('pictures/undistort/calibresult.png', dst)
