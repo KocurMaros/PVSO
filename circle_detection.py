@@ -11,7 +11,8 @@ cv.setTrackbarMin('P1', 'image', 1)
 cv.createTrackbar('P2','image',30,100,nothing)
 cv.setTrackbarMin('P2', 'image', 1) 
 cv.createTrackbar('minR','image',5,100,nothing)
-cv.createTrackbar('maxR','image',20,100,nothing)
+cv.createTrackbar('maxR','image',30,100,nothing)
+cv.createTrackbar('blur','image',1,100,nothing)
 use_ximea = True
 gaussian_amount = 10
 
@@ -43,10 +44,14 @@ if use_ximea == True:
         gimg = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
         # gimg = cv.medianBlur(gimg,5)
 
+        gaussian_amount = cv.getTrackbarPos('blur','image')
         for i in range(gaussian_amount):
             gimg = cv.GaussianBlur(gimg,(5,5),0)
 
         cimg = image
+
+        canny = cv.Canny(gimg, threshold1=cv.getTrackbarPos('P1','image'), threshold2=cv.getTrackbarPos('P1','image')*2)
+        cv.imshow("canny", canny)
 
         circles = cv.HoughCircles(gimg,cv.HOUGH_GRADIENT,1,20,
                                 param1=cv.getTrackbarPos('P1','image'),
