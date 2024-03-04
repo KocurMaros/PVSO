@@ -42,18 +42,24 @@ if use_ximea == True:
         image = img.get_image_data_numpy()
         image= cv.resize(image,(400,300))
         gimg = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+        if k == ord('s'):
+            cv.imwrite("pictures/original.jpg",image)
+            cv.imwrite("pictures/grayscale.jpg",gimg)
         # gimg = cv.medianBlur(gimg,5)
 
         gaussian_amount = cv.getTrackbarPos('blur','image')
         for i in range(gaussian_amount):
             gimg = cv.GaussianBlur(gimg,(5,5),0)
 
+        if k == ord('s'):
+            cv.imwrite("pictures/blur.jpg",gimg)
+        
         cimg = image
 
         canny = cv.Canny(gimg, threshold1=cv.getTrackbarPos('P1','image'), threshold2=cv.getTrackbarPos('P1','image')*2)
         cv.imshow("canny", canny)
 
-        circles = cv.HoughCircles(gimg,cv.HOUGH_GRADIENT,1,20,
+        circles = cv.HoughCircles(gimg,cv.HOUGH_GRADIENT,1,minDist=20,
                                 param1=cv.getTrackbarPos('P1','image'),
                                 param2=cv.getTrackbarPos('P2','image'),
                                 minRadius=cv.getTrackbarPos('minR','image'),
@@ -68,5 +74,8 @@ if use_ximea == True:
                 cv.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
         cv.imshow("image", cimg)
         cv.imshow("blur", gimg)
-
+        if k == ord('s'):
+            cv.imwrite("pictures/hough.jpg",image)
+            cv.imwrite("pictures/canny.jpg",canny)
+        
         k = cv.waitKey(5)
