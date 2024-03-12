@@ -13,7 +13,7 @@ def canny_edge_detection(image, low_threshold, high_threshold):
     gradient_y = sobel_operator(blurred, 0, 1, ksize=3)
 
     # Calculate gradient magnitude and direction
-    gradient_magnitude = np.sqrt(gradient_x**2 + gradient_y**2)
+    gradient_magnitude = np.sqrt(gradient_x*gradient_x + gradient_y*gradient_y)
     gradient_direction = np.arctan2(gradient_y, gradient_x)
 
     # Apply non-maximum suppression to thin out edges
@@ -97,7 +97,8 @@ def hysteresis_thresholding(edges):
 
     return thresholded
  
-def gaussian_blur(image, kernel_size, sigma): # Create a Gaussian kernel kernel = np.fromfunction(lambda x, y: (1 / (2 * np.pi * sigma**2)) * np.exp(-((x - kernel_size[0]//2)**2 + (y - kernel_size[1]//2)2) / (2 * sigma2)), kernel_size)
+def gaussian_blur(image, kernel_size, sigma): # Create a Gaussian kernel 
+    kernel = np.fromfunction(lambda x, y: (1 / (2 * np.pi * sigma**2)) * np.exp(-pow((x - kernel_size[0]//2), 2) - pow((y - kernel_size[1]//2), 2) / (2 * sigma**2)) if sigma != 0 else 0, kernel_size)
     # Normalize the kernel
     kernel /= np.sum(kernel)
 
