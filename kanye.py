@@ -1,16 +1,16 @@
 import numpy as np
 import cv2
+from scipy.signal import convolve2d
+
 
 def canny_edge_detection(image, low_threshold, high_threshold):
-    # Convert the image to grayscale
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
+    
     # Apply Gaussian blur to reduce noise
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    blurred = gaussian_blur(image, (5, 5), 0) #prerobit
 
     # Apply Sobel operator to calculate gradients
-    gradient_x = cv2.Sobel(blurred, cv2.CV_64F, 1, 0, ksize=3)
-    gradient_y = cv2.Sobel(blurred, cv2.CV_64F, 0, 1, ksize=3)
+    gradient_x = sobel_operator(blurred, 1, 0, ksize=3) # prerobit
+    gradient_y = sobel_operator(blurred, 0, 1, ksize=3)
 
     # Calculate gradient magnitude and direction
     gradient_magnitude = np.sqrt(gradient_x**2 + gradient_y**2)
@@ -97,3 +97,30 @@ def hysteresis_thresholding(edges):
 
     return thresholded
  
+def gaussian_blur(image, kernel_size, sigma): # Create a Gaussian kernel kernel = np.fromfunction(lambda x, y: (1 / (2 * np.pi * sigma**2)) * np.exp(-((x - kernel_size[0]//2)**2 + (y - kernel_size[1]//2)2) / (2 * sigma2)), kernel_size)
+    # Normalize the kernel
+    kernel /= np.sum(kernel)
+
+    # Get the dimensions of the image
+    height, width = image.shape
+
+    # Create an empty array to store the blurred image
+    blurred = np.zeros_like(image)
+
+    # Apply the Gaussian blur
+    for i in range(kernel_size[0]//2, height - kernel_size[0]//2):
+        for j in range(kernel_size[1]//2, width - kernel_size[1]//2):
+            # Convolve the kernel with the image region
+            region = image[i - kernel_size[0]//2:i + kernel_size[0]//2 + 1, j - kernel_size[1]//2:j + kernel_size[1]//2 + 1]
+            blurred[i, j] = np.sum(region * kernel)
+
+    return blurred
+
+def sobel_operator(image, dx, dy, ksize): # Create the Sobel kernels 
+    kernel_x = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]) 
+    kernel_y = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])
+    # Apply the kernels to calculate gradients
+    gradient_x = convolve2d(image, kernel_x, mode='same')
+    gradient_y = convolve2d(image, kernel_y, mode='same')
+
+    return gradient_x, gradient_y
