@@ -1,20 +1,11 @@
 import numpy as np
-import cv2
-from scipy.signal import convolve2d
-
 
 def canny_edge_detection(image, low_threshold, high_threshold):
     
     # Apply Gaussian blur to reduce noise
-    blurred = gaussian_blur(image, (5, 5), 0) #prerobit
+    blurred = gaussian_blur(image)
 
-    # Apply Sobel operator to calculate gradients
-    gradient_x = sobel_operator(blurred, 1, 0, ksize=3) # prerobit
-    gradient_y = sobel_operator(blurred, 0, 1, ksize=3)
-
-    # Calculate gradient magnitude and direction
-    gradient_magnitude = np.sqrt(gradient_x*gradient_x + gradient_y*gradient_y)
-    gradient_direction = np.arctan2(gradient_y, gradient_x)
+    gradient_magnitude, gradient_direction = sobel_operator(blurred)
 
     # Apply non-maximum suppression to thin out edges
     suppressed = non_max_suppression(gradient_magnitude, gradient_direction)
@@ -97,31 +88,24 @@ def hysteresis_thresholding(edges):
 
     return thresholded
  
-def gaussian_blur(image, kernel_size, sigma): # Create a Gaussian kernel 
-    kernel = np.fromfunction(lambda x, y: (1 / (2 * np.pi * sigma**2)) * np.exp(-pow((x - kernel_size[0]//2), 2) - pow((y - kernel_size[1]//2), 2) / (2 * sigma**2)) if sigma != 0 else 0, kernel_size)
-    # Normalize the kernel
-    kernel /= np.sum(kernel)
+def gaussian_blur(img): # Create a Gaussian kernel 
+    for i in range(1,img.shape[0]-1):
+        for j in range(1,img.shape[1]-1):
+            img[i,j] = (68*img[i,j] + img[i-1,j] + img[i+1,j] + img[i,j-1] + img[i,j+1])/72.0
+    return img
 
-    # Get the dimensions of the image
-    height, width = image.shape
+def sobel_operator(image): # Create the Sobel kernels 
+    Gx = np.array([[1.0, 0.0, -1.0], [2.0, 0.0, -2.0], [1.0, 0.0, -1.0]])
+    Gy = np.array([[1.0, 2.0, 1.0], [0.0, 0.0, 0.0], [-1.0, -2.0, -1.0]])
+    [rows, columns] = np.shape(image)  # we need to know the shape of the input grayscale image
+    gradient_magnitude = np.zeros(shape=(rows, columns))  # initialization of the output image array (all elements are 0)
+    gradient_direction = np.zeros(shape=(rows, columns))  # initialization of the output image array (all elements are 0)
 
-    # Create an empty array to store the blurred image
-    blurred = np.zeros_like(image)
-
-    # Apply the Gaussian blur
-    for i in range(kernel_size[0]//2, height - kernel_size[0]//2):
-        for j in range(kernel_size[1]//2, width - kernel_size[1]//2):
-            # Convolve the kernel with the image region
-            region = image[i - kernel_size[0]//2:i + kernel_size[0]//2 + 1, j - kernel_size[1]//2:j + kernel_size[1]//2 + 1]
-            blurred[i, j] = np.sum(region * kernel)
-
-    return blurred
-
-def sobel_operator(image, dx, dy, ksize): # Create the Sobel kernels 
-    kernel_x = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]) 
-    kernel_y = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])
-    # Apply the kernels to calculate gradients
-    gradient_x = convolve2d(image, kernel_x, mode='same')
-    gradient_y = convolve2d(image, kernel_y, mode='same')
-
-    return gradient_x, gradient_y
+    # Now we "sweep" the image in both x and y directions and compute the output
+    for i in range(rows - 2):
+        for j in range(columns - 2):
+            gx = np.sum(np.multiply(Gx, image[i:i + 3, j:j + 3]))  # x direction
+            gy = np.sum(np.multiply(Gy, image[i:i + 3, j:j + 3]))  # y direction
+            gradient_magnitude[i + 1, j + 1] = np.sqrt(gx ** 2 + gy ** 2)  # calculate the "hypotenuse"
+            gradient_direction[i + 1, j + 1] = np.arctan2(gy, gx)  # calculate the gradient direction
+    return [gradient_magnitude, gradient_direction]
