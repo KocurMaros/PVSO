@@ -1,0 +1,23 @@
+HT je technika na detegovanie tvarov ktore su reprezentovatelne v matematickej podoobe
+obrazok sa pretransformuje do parametrickeho priestoru, kde sa deteguju tvary skrz indenfitikaciu vzorov
+Využíva sa hlasovací mechanizus, ktory nam vytvori kandidatov na objekty - tie potom pomocou nejakeho thresholdu určíme, či sú alebo nie reálne obejtky. Našou ulohou bolo detegovat čiary.
+
+Canny - Maroš
+prvym krokom pri HT je predspracovanie obrazu - grayscale, gauss, ... canny, na to aby nam našiel hrany, z tych budeme čerpat
+atd random bruuh zisti čo chceš hovorit :D 
+
+Param priestor 1 
+rovnica priamky - parametricky priestor = x a y su ako keby parameter a u a v su ako keby suradnice, tam kde sa nove priamky pretnu = to znamena ze dane x a y 1 a 2 su na tej istej priamke s parametrami bodu, kde sa pretli v parametrickom priestore
+
+Param priestor 2
+param pries1 nevie detegovat zvisle a vodorovne čiary -> riešenie = popis priamky v polarnych suradniciach - vzdialenost od originu a uhol zvierany s xovou osou, vzniknu krivky - pretnu sa rovnako ako predtym
+
+Akumulačna matica
+rozmer podla počtu parametrov, velkost podla prehladavaneho priestoru, vzdialenost = 2*uhlopriečka obrazka (budeme normalizovat rho tak aby zacinalo na nule), theta = 0,180
+
+Hlasovanie 
+Matica sa naplni nulami
+prejdu sa vsetky x a y skontroluje sa canny, pre kazdu thetu sa vypocita rho, pripocita sa na miesto v akumulačnej matici s danymi parameterami jednotka.
+
+Vyber priamok
+prejde sa akumulačna matica, ak je bunka akumulačnej matice vacsia ako threshold = je to nasa hladana priamka
