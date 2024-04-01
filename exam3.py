@@ -22,6 +22,8 @@ image = cv.imread('test_image.png')
 gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 canny = west.canny_edge_detection(gray, low_threshold=40, high_threshold=980)
 canny = cv.Mat(canny)
+# save canny 
+cv.imwrite('canny.png', canny)
 cv.imshow('image', canny)
 lines = ht.hough_transform(canny, threshold=150)
 # print(lines)
@@ -40,6 +42,8 @@ if lines is not None:
         cv.line(image, pt1, pt2, (0,0,255), 3, cv.LINE_AA)
 
 cv.imshow('image2', image)
+# save image
+cv.imwrite('hough_transform.png', image)
 cv.waitKey(0)
 cv.destroyAllWindows()
 
