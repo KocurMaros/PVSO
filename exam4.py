@@ -38,24 +38,34 @@
 import open3d as o3d
 import numpy as np
 
-# Read the point cloud
-pcd = o3d.io.read_point_cloud('office1.pcd')
 
-# Convert points to numpy array
-points = np.asarray(pcd.points)
+if __name__ == "__main__":
+    # Read the point cloud
+    pcd = o3d.io.read_point_cloud('office1.pcd')
 
-# Create a mask of boolean values representing whether each point is a real number
-mask = ~np.isnan(points).any(axis=1)
+    # Convert points to numpy array
+    points = np.asarray(pcd.points)
 
-# Use the mask to filter the points
-real_points = points[mask]
+    # Create a mask of boolean values representing whether each point is a real number
+    mask = ~np.isnan(points).any(axis=1)
 
-# Translate and scale the points
-real_points = real_points - np.mean(real_points, axis=0)
-real_points = real_points / np.std(real_points, axis=0)
+    # Use the mask to filter the points
+    real_points = points[mask]
 
-# Update the point cloud with the new points
-pcd.points = o3d.utility.Vector3dVector(real_points)
+    # Translate and scale the points
+    real_points = real_points - np.mean(real_points, axis=0)
+    real_points = real_points / np.std(real_points, axis=0)
 
-# Visualize the point cloud
-o3d.visualization.draw_geometries([pcd])
+    # Update the point cloud with the new points
+    pcd.points = o3d.utility.Vector3dVector(real_points)
+
+    # Visualize the point cloud
+    # o3d.visualization.draw_geometries([pcd])
+
+    ######### REMOVE POINTS BELOW Z=0 #########
+    points = np.asarray(pcd.points)
+    pcd_sel = pcd.select_by_index(np.where(points[:, 2] < 0)[0])
+
+    # visualize different point clouds
+    o3d.visualization.draw_geometries([pcd])
+    o3d.visualization.draw_geometries([pcd_sel])
