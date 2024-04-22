@@ -42,8 +42,18 @@ main ()
   pass.setFilterFieldName ("z");
   pass.setFilterLimits (0, 1.2);
   pass.filter (*cloud_filtered);
-  std::cerr << "PointCloud after filtering has: " << cloud_filtered->size () << " data points." << std::endl;
 
+  pass.setInputCloud (cloud_filtered);
+  pass.setFilterFieldName ("x");
+  pass.setFilterLimits (0, 0.7);
+  pass.filter (*cloud_filtered);
+
+  pass.setInputCloud (cloud_filtered);
+  pass.setFilterFieldName ("y");
+  pass.setFilterLimits (0, 1.0);
+  pass.filter (*cloud_filtered);
+  std::cerr << "PointCloud after filtering has: " << cloud_filtered->size () << " data points." << std::endl;
+  writer.write ("filter.pcd", *cloud_filtered, false);
   // Estimate point normals
   ne.setSearchMethod (tree);
   ne.setInputCloud (cloud_filtered);
@@ -87,9 +97,9 @@ main ()
   seg.setModelType (pcl::SACMODEL_CYLINDER);
   seg.setMethodType (pcl::SAC_RANSAC);
   seg.setNormalDistanceWeight (0.1);
-  seg.setMaxIterations (50000);
-  seg.setDistanceThreshold (0.05);
-  seg.setRadiusLimits (0, 0.2);
+  seg.setMaxIterations (1000);
+  seg.setDistanceThreshold (0.03);
+  seg.setRadiusLimits (0, 0.1);
   seg.setInputCloud (cloud_filtered2);
   seg.setInputNormals (cloud_normals2);
 
