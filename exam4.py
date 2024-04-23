@@ -41,7 +41,7 @@ import numpy as np
 
 if __name__ == "__main__":
     # Read the point cloud
-    pcd = o3d.io.read_point_cloud('office1.pcd')
+    pcd = o3d.io.read_point_cloud('output.pcd')
 
     # Convert points to numpy array
     points = np.asarray(pcd.points)
