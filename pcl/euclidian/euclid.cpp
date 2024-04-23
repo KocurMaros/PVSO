@@ -17,7 +17,7 @@ main (int argc, char** argv)
   // Read in the cloud data
   pcl::PCDReader reader;
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>), cloud_f (new pcl::PointCloud<pcl::PointXYZ>);
-  reader.read ("../output_big.pcd", *cloud);
+  reader.read ("../filter.pcd", *cloud);
   std::cout << "PointCloud before filtering has: " << cloud->size () << " data points." << std::endl; //*
 
   // Create the filtering object: downsample the dataset using a leaf size of 1cm
@@ -93,7 +93,7 @@ main (int argc, char** argv)
 
     std::cout << "PointCloud representing the Cluster: " << cloud_cluster->size () << " data points." << std::endl;
     std::stringstream ss;
-    ss << "cloud_cluster_" << j << ".pcd";
+    ss << "clusters/cloud_cluster_" << j << ".pcd";
     writer.write<pcl::PointXYZ> (ss.str (), *cloud_cluster, false); //*
     j++;
   }
