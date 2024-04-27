@@ -1,2 +1,4 @@
 virt_env/
 *.ply
+build/
+.vscode/
