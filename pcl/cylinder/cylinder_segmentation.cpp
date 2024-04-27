@@ -33,7 +33,7 @@ main ()
   pcl::PointIndices::Ptr inliers_plane (new pcl::PointIndices), inliers_cylinder (new pcl::PointIndices);
 
   // Read in the cloud data
-  reader.read ("../filtered.pcd", *cloud);
+  reader.read ("../learn30.pcd", *cloud);
   // reader.read ("../../pcd/segmentation/mOSD/learn/learn30.pcd", *cloud);
   std::cerr << "PointCloud has: " << cloud->size () << " data points." << std::endl;
 
@@ -43,15 +43,15 @@ main ()
   pass.setFilterLimits (0, 1.2);
   pass.filter (*cloud_filtered);
 
-  pass.setInputCloud (cloud_filtered);
-  pass.setFilterFieldName ("x");
-  pass.setFilterLimits (0, 0.7);
-  pass.filter (*cloud_filtered);
+//   pass.setInputCloud (cloud_filtered);
+//   pass.setFilterFieldName ("x");
+//   pass.setFilterLimits (0, 0.7);
+//   pass.filter (*cloud_filtered);
 
-  pass.setInputCloud (cloud_filtered);
-  pass.setFilterFieldName ("y");
-  pass.setFilterLimits (0, 1.0);
-  pass.filter (*cloud_filtered);
+//   pass.setInputCloud (cloud_filtered);
+//   pass.setFilterFieldName ("y");
+//   pass.setFilterLimits (0, 1.0);
+//   pass.filter (*cloud_filtered);
   std::cerr << "PointCloud after filtering has: " << cloud_filtered->size () << " data points." << std::endl;
   writer.write ("filter.pcd", *cloud_filtered, false);
   // Estimate point normals
