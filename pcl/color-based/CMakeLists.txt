@@ -10,3 +10,6 @@ add_definitions(${PCL_DEFINITIONS})
 
 add_executable (pvso region_growing.cpp)
 target_link_libraries (pvso ${PCL_LIBRARIES})
+
+add_executable (pvso1 region.cpp)
+target_link_libraries (pvso1 ${PCL_LIBRARIES})

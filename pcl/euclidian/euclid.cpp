@@ -112,7 +112,7 @@ main (int argc, char** argv)
 
   std::vector<pcl::PointIndices> cluster_indices;
   pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-  ec.setClusterTolerance (0.02); // 2cm
+  ec.setClusterTolerance (0.0002); // 2cm
   ec.setMinClusterSize (0);
   ec.setMaxClusterSize (4000);
   ec.setSearchMethod (tree);
