@@ -20,7 +20,7 @@ main ()
   pcl::search::Search <pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB>);
 
   pcl::PointCloud <pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud <pcl::PointXYZRGB>);
-  if ( pcl::io::loadPCDFile <pcl::PointXYZRGB> ("../learn34.pcd", *cloud) == -1 )
+  if ( pcl::io::loadPCDFile <pcl::PointXYZRGB> ("../output_big.pcd", *cloud) == -1 )
   {
     std::cout << "Cloud reading failed." << std::endl;
     return (-1);
@@ -48,7 +48,7 @@ main ()
   else
   {
 	  std::cerr << "PointCloud representing the component: " << colored_cloud->size () << " data points." << std::endl;
-	  writer.write ("region_learn.pcd", *colored_cloud, false);
+	  writer.write ("region_kinect_c.pcd", *colored_cloud, false);
   }
   return (0);
 

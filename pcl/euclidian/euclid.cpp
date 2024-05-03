@@ -13,6 +13,18 @@
 #include <pcl/point_types.h>
 #include <pcl/common/io.h> // for concatenateFields
 
+void getMinMax3D (const pcl::PointCloud<pcl::PointXYZRGB> &cloud, pcl::PointXYZ &min_pt, pcl::PointXYZ &max_pt){
+  min_pt.x = min_pt.y = min_pt.z = std::numeric_limits<float>::max ();
+  max_pt.x = max_pt.y = max_pt.z = -std::numeric_limits<float>::max ();
+  for (const auto& point : cloud.points) {
+    if (point.x < min_pt.x) min_pt.x = point.x;
+    if (point.y < min_pt.y) min_pt.y = point.y;
+    if (point.z < min_pt.z) min_pt.z = point.z;
+    if (point.x > max_pt.x) max_pt.x = point.x;
+    if (point.y > max_pt.y) max_pt.y = point.y;
+    if (point.z > max_pt.z) max_pt.z = point.z;
+  }
+}
 int 
 main (int argc, char** argv)
 {
@@ -63,7 +75,7 @@ main (int argc, char** argv)
   uint8_t b;
   int i=0, nr_points = (int) cloud_filtered->size ();
 
-  while (cloud_filtered->size () > 0.4 * nr_points)
+  while (cloud_filtered->size () > 0.6 * nr_points)
   {
     // Segment the largest planar component from the remaining cloud
     seg.setInputCloud (cloud_filtered);
@@ -88,16 +100,15 @@ main (int argc, char** argv)
     g = static_cast<uint8_t>(rand() % 256);
     b = static_cast<uint8_t>(rand() % 256);
     
-    std::cout << "RGB: " << (int)r << " " << (int)g << " " << (int)b << "\n";
     for(const auto& p : cloud_plane->points) {
       pcl::PointXYZRGB p_rgb;
       p_rgb.x = p.x;
       p_rgb.y = p.y;
       p_rgb.z = p.z;
       // Set the RGB values for yellow color
-      p_rgb.r = r; // Red
-      p_rgb.g = g; // Green
-      p_rgb.b = b; // Blue
+      p_rgb.r = 255; // Red
+      p_rgb.g = 255; // Green
+      p_rgb.b = 255; // Blue
       cloud_output->points.push_back(p_rgb);
     }
     // Remove the planar inliers, extract the rest
@@ -112,9 +123,9 @@ main (int argc, char** argv)
 
   std::vector<pcl::PointIndices> cluster_indices;
   pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-  ec.setClusterTolerance (0.0002); // 2cm
-  ec.setMinClusterSize (0);
-  ec.setMaxClusterSize (4000);
+  ec.setClusterTolerance (0.01); // 2cm
+  ec.setMinClusterSize (100);
+  ec.setMaxClusterSize (4000000);
   ec.setSearchMethod (tree);
   ec.setInputCloud (cloud_filtered);
   ec.extract (cluster_indices);
@@ -128,6 +139,10 @@ main (int argc, char** argv)
         g = static_cast<uint8_t>(rand() % 256);
         b = static_cast<uint8_t>(rand() % 256);
         std::cout << "RGB: " << (int)r << " " << (int)g << " " << (int)b << "\n";
+
+        // Find the maximum and minimum points in cloud_filtered
+
+
         for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit)
         {
           pcl::PointXYZRGB point;
@@ -139,17 +154,35 @@ main (int argc, char** argv)
           point.b =  b;
           cloud_cluster->push_back(point);
         }
+        pcl::PointXYZ max_point, min_point;
+        getMinMax3D(*cloud_cluster, min_point, max_point);
+
+        // Add points from cloud that are between min_point and max_point
+        for(const auto& p : cloud->points) {
+          if(p.x >= min_point.x && p.x <= max_point.x &&
+             p.y >= min_point.y && p.y <= max_point.y &&
+             p.z >= min_point.z && p.z <= max_point.z) {
+            pcl::PointXYZRGB p_rgb;
+            p_rgb.x = p.x;
+            p_rgb.y = p.y;
+            p_rgb.z = p.z;
+            p_rgb.r =  cloud_cluster->points[0].r;
+            p_rgb.g =  cloud_cluster->points[0].g;
+            p_rgb.b =  cloud_cluster->points[0].b;
+            cloud_cluster->points.push_back(p_rgb);
+          }
+        }
         cloud_cluster->width = cloud_cluster->size ();
         cloud_cluster->height = 1;
         cloud_cluster->is_dense = true;
 
         std::cout << "PointCloud representing the Cluster: " << cloud_cluster->size () << " data points." << std::endl;
-      if(cloud_cluster->size() >= 100) { 
-        std::stringstream ss;
-        ss << "cloud_cluster_" << j << ".pcd";
-        writer.write<pcl::PointXYZRGB> (ss.str (), *cloud_cluster, false);
-        j++;
-      }
+        if(cloud_cluster->size() >= 100) { 
+          std::stringstream ss;
+          ss << "cloud_cluster_" << j << ".pcd";
+          writer.write<pcl::PointXYZRGB> (ss.str (), *cloud_cluster, false);
+          j++;
+        }
 
         // Merge cloud_cluster into cloud_output
         cloud_output->points.insert(cloud_output->points.end(), cloud_cluster->points.begin(), cloud_cluster->points.end());
@@ -157,7 +190,8 @@ main (int argc, char** argv)
   std::cout << "PointCloud representing the PCD: " << cloud_output->size () << " data points." << std::endl;
   cloud_output->width = cloud_output->points.size();
   cloud_output->height = 1;
-  writer.write<pcl::PointXYZRGB> ("cloud_clusterxx.pcd", *cloud_output, false);
+  writer.write<pcl::PointXYZRGB> ("cloud_cluster_kinect.pcd", *cloud_output, false);
+  writer.write<pcl::PointXYZ> ("cloud_cluster_learn_filter.pcd", *cloud_filtered, false);
 
   return (0);
 }

@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/laptop/school/PVSO/pcl/euclidian/euclid.cpp" "CMakeFiles/pvso.dir/euclid.cpp.o" "gcc" "CMakeFiles/pvso.dir/euclid.cpp.o.d"
+  "/home/pc/school/PVSO/pcl/euclidian/euclid.cpp" "CMakeFiles/pvso.dir/euclid.cpp.o" "gcc" "CMakeFiles/pvso.dir/euclid.cpp.o.d"
   )
 
 # Targets to which this target links.
